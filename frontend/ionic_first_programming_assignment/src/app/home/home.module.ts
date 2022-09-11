@@ -7,6 +7,9 @@ import {InputTextModule} from 'primeng/inputtext';
 import {CalendarModule} from 'primeng/calendar';
 import {CardModule} from 'primeng/card';
 import {TableModule} from 'primeng/table';
+import {MessageModule} from 'primeng/message';
+import {MessagesModule} from 'primeng/messages';
+
 
 
 import { HomePageRoutingModule } from './home-routing.module';
@@ -21,7 +24,9 @@ import { HomePageRoutingModule } from './home-routing.module';
     InputTextModule,
     CalendarModule,
     CardModule,
-    TableModule
+    TableModule,
+    MessagesModule,
+    MessageModule
   ],
   declarations: [HomePage],
 })
