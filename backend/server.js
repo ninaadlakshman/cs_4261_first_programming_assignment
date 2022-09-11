@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser= require('body-parser')
 require('dotenv').config();
+const cors = require('cors')
 const get_weather = require('./weather.js')
 
 const MongoClient = require('mongodb').MongoClient
