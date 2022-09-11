@@ -5,6 +5,7 @@ require('dotenv').config();
 const get_weather = require('./weather.js')
 
 const MongoClient = require('mongodb').MongoClient
+const ObjectId = require('mongodb').ObjectId
 
 connectionString = process.env.DATABASE_URL
 
@@ -18,16 +19,16 @@ MongoClient.connect(connectionString, {
   const vacationSpotsCollection = db.collection('vacation_spots')
   
   app.use(bodyParser.json())
+  app.use(cors())
 
   app.post('/vacation-spot', (req, res) => {
-    get_weather(req.body.location, function(weather_data) {
-        req.body.current_temperature = weather_data;
-        vacationSpotsCollection.insertOne(req.body)
+    const received_request = req.body
+    get_weather(received_request.body.location, function(weather_data) {
+      received_request.body.current_temperature = weather_data;
+        vacationSpotsCollection.insertOne(received_request.body)
         .then(result => {
             res.status(200).send({
-                data: {
-                    result
-                }
+              response: "Vacation spot has been successfully added."
             })
         })
         .catch(error => console.error(error))
@@ -46,14 +47,28 @@ MongoClient.connect(connectionString, {
         })
   })
 
+  app.get('/vacation-spot', (req, res) => {
+    const received_request = req.body
+    const cursor = vacationSpotsCollection.findOne({_id: ObjectId(received_request.body._id)})
+        .then(result => {
+            res.status(200).send({
+                data: result
+            })
+        })
+        .catch(error => {
+            res.sendStatus(400)
+        })
+  })
+
   app.put('/vacation-spots', (req, res) => {
-    get_weather(req.body.location, function(weather_data) {
+    const received_request = req.body
+    get_weather(received_request.body.location, function(weather_data) {
         vacationSpotsCollection.findOneAndUpdate(
-            { id: req.body.id },
+            { _id: ObjectId(received_request.body._id) },
             {
               $set: {
-                location: req.body.location,
-                date_to_visit: req.body.date_to_visit,
+                location: received_request.body.location,
+                date_to_visit: received_request.body.date_to_visit,
                 current_temperature: weather_data
               }
             },
@@ -62,7 +77,9 @@ MongoClient.connect(connectionString, {
             }
           )
             .then(result => {
-                res.sendStatus(200)
+                res.status(200).send({
+                  response: "Vacation spot has been successfully updated."
+                })
             })
             .catch(error => {
                 console.error(error)
@@ -74,7 +91,9 @@ MongoClient.connect(connectionString, {
   app.delete("/vacation-spots", (req, res) => {
     vacationSpotsCollection.deleteMany({})
         .then(result => {
-            res.sendStatus(200)
+          res.status(200).send({
+            response: "All vacation spots have been successfully deleted."
+          })
         })
         .catch(error => {
             console.error(error)
